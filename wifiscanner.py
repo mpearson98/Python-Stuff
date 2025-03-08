@@ -1,6 +1,25 @@
 import tkinter as tk
 from tkinter import ttk
 from scapy.all import *
+import os
+import subprocess
+
+def set_monitor_mode(iface):
+    try:
+        subprocess.run(["sudo", "ifconfig", iface, "down"], check=True)
+        subprocess.run(["sudo", "ifconfig", iface, "up"], check=True)
+        subprocess.run(["sudo", "airport", iface, "disassociate"], check=True)
+        subprocess.run(["sudo", "airport", iface, "-z"], check=True)
+        subprocess.run(["sudo", "airport", iface, "--monitor"], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error setting monitor mode: {e}")
+
+def reset_interface(iface):
+    try:
+        subprocess.run(["sudo", "ifconfig", iface, "down"], check=True)
+        subprocess.run(["sudo", "ifconfig", iface, "up"], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error resetting interface: {e}")
 
 def scan_wifi():
     networks = []
@@ -12,7 +31,13 @@ def scan_wifi():
                 networks.append({'SSID': ssid, 'BSSID': bssid})
                 tree.insert("", "end", values=(ssid, bssid))
 
-    async_sniff(prn=packet_handler, iface="en0", timeout=10)
+    try:
+        iface = "en0"  # Change this to the correct interface name
+        set_monitor_mode(iface)
+        sniff(prn=packet_handler, iface=iface, timeout=10)
+        reset_interface(iface)
+    except Exception as e:
+        print(f"Error: {e}")
 
 def start_scan():
     tree.delete(*tree.get_children())

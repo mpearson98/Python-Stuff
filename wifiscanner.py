@@ -12,7 +12,7 @@ def scan_wifi():
                 networks.append({'SSID': ssid, 'BSSID': bssid})
                 tree.insert("", "end", values=(ssid, bssid))
 
-    sniff(prn=packet_handler, iface="wlan0", timeout=10)
+    async_sniff(prn=packet_handler, iface="en0", timeout=10)
 
 def start_scan():
     tree.delete(*tree.get_children())

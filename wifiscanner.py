@@ -8,9 +8,7 @@ def set_monitor_mode(iface):
     try:
         subprocess.run(["sudo", "ifconfig", iface, "down"], check=True)
         subprocess.run(["sudo", "ifconfig", iface, "up"], check=True)
-        subprocess.run(["sudo", "airport", iface, "disassociate"], check=True)
-        subprocess.run(["sudo", "airport", iface, "-z"], check=True)
-        subprocess.run(["sudo", "airport", iface, "--monitor"], check=True)
+        subprocess.run(["sudo", "ifconfig", iface, "monitor", "promisc"], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error setting monitor mode: {e}")
 
